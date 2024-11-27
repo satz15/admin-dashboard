@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import { login } from '../api/authapi.js';
 
 const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false); 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -12,7 +13,7 @@ const Login = ({ onLogin }) => {
     try {
       const user = await login(credentials);
       localStorage.setItem('loggedInUser', JSON.stringify(user));
-      onLogin(); // Notify App component of login success
+      onLogin(); 
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid username or password');
@@ -76,14 +77,43 @@ const Login = ({ onLogin }) => {
         </form>
         <div className="mt-6 text-sm text-center text-gray-500">
           Don't have an account?{' '}
-          <a
-            href="#"
+          <button
+            onClick={() => setShowModal(true)} 
             className="text-blue-500 hover:underline transition-all"
           >
-            Contact Admin
-          </a>
+            Login credentials
+          </button>
         </div>
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h3 className="text-lg font-bold mb-4">Login Credentials</h3>
+            <p className="mb-2">
+              <strong>Admin Credential</strong>
+              <br />
+              Username: admin
+              <br />
+              Password: admin123
+            </p>
+            <p>
+              <strong>Manager Credential</strong>
+              <br />
+              Username: manager
+              <br />
+              Password: manager123
+            </p>
+            <button
+              onClick={() => setShowModal(false)} 
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

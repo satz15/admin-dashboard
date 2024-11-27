@@ -7,6 +7,7 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'User', status: 'Active' });
   const [editingUser, setEditingUser] = useState(null);
+  const [updatedUser, setUpdatedUser] = useState({ name: '', email: '', role: '' });
   const loggedInUser = getLoggedInUser();
 
   useEffect(() => {
@@ -19,7 +20,7 @@ const UserManagement = () => {
     setNewUser({ name: '', email: '', role: 'User', status: 'Active' });
   };
 
-  const handleEditUser = async (id, updatedUser) => {
+  const handleEditUser = async (id) => {
     await editUser(id, updatedUser);
     setUsers(await fetchUsers());
     setEditingUser(null);
@@ -66,43 +67,92 @@ const UserManagement = () => {
         </div>
       )}
       <table className="table-auto w-full bg-white rounded shadow">
-  <thead>
-    <tr>
-      <th className="border px-4 py-2 text-center text-lg">Name</th>
-      <th className="border px-4 py-2 text-center text-lg">Email</th>
-      <th className="border px-4 py-2 text-center text-lg">Role</th>
-      <th className="border px-4 py-2 text-center text-lg">Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {users.map((user) => (
-      <tr key={user.id}>
-        <td className="border px-4 py-2 text-center align-middle text-lg">{user.name}</td>
-        <td className="border px-4 py-2 text-center align-middle text-lg">{user.email}</td>
-        <td className="border px-4 py-2 text-center align-middle text-lg">{user.role}</td>
-        <td className="border px-4 py-2 text-center align-middle text-lg">
-          {(loggedInUser.role === 'admin' || loggedInUser.role === 'manager') && (
-            <button
-              className="text-blue-500 mr-2"
-              onClick={() => setEditingUser(user.id)}
-            >
-              <FiEdit />
-            </button>
-          )}
-          {loggedInUser.role === 'admin' && (
-            <button
-              className="text-red-500"
-              onClick={() => handleDeleteUser(user.id)}
-            >
-              <FiTrash2 />
-            </button>
-          )}
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-
+        <thead>
+          <tr>
+            <th className="border px-4 py-2 text-center text-lg">Name</th>
+            <th className="border px-4 py-2 text-center text-lg">Email</th>
+            <th className="border px-4 py-2 text-center text-lg">Role</th>
+            <th className="border px-4 py-2 text-center text-lg">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr key={user.id}>
+              {editingUser === user.id ? (
+                <>
+                  <td className="border px-4 py-2 text-center align-middle text-lg">
+                    <input
+                      type="text"
+                      value={updatedUser.name}
+                      onChange={(e) => setUpdatedUser({ ...updatedUser, name: e.target.value })}
+                      className="border p-2 rounded"
+                    />
+                  </td>
+                  <td className="border px-4 py-2 text-center align-middle text-lg">
+                    <input
+                      type="email"
+                      value={updatedUser.email}
+                      onChange={(e) => setUpdatedUser({ ...updatedUser, email: e.target.value })}
+                      className="border p-2 rounded"
+                    />
+                  </td>
+                  <td className="border px-4 py-2 text-center align-middle text-lg">
+                    <select
+                      value={updatedUser.role}
+                      onChange={(e) => setUpdatedUser({ ...updatedUser, role: e.target.value })}
+                      className="border p-2 rounded"
+                    >
+                      <option value="User">User</option>
+                      <option value="Manager">Manager</option>
+                    </select>
+                  </td>
+                  <td className="border px-4 py-2 text-center align-middle text-lg">
+                    <button
+                      className="text-green-500 mr-2"
+                      onClick={() => handleEditUser(user.id)}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="text-red-500"
+                      onClick={() => setEditingUser(null)}
+                    >
+                      Cancel
+                    </button>
+                  </td>
+                </>
+              ) : (
+                <>
+                  <td className="border px-4 py-2 text-center align-middle text-lg">{user.name}</td>
+                  <td className="border px-4 py-2 text-center align-middle text-lg">{user.email}</td>
+                  <td className="border px-4 py-2 text-center align-middle text-lg">{user.role}</td>
+                  <td className="border px-4 py-2 text-center align-middle text-lg">
+                    {(loggedInUser.role === 'admin' || loggedInUser.role === 'manager') && (
+                      <button
+                        className="text-blue-500 mr-2"
+                        onClick={() => {
+                          setEditingUser(user.id);
+                          setUpdatedUser({ name: user.name, email: user.email, role: user.role });
+                        }}
+                      >
+                        <FiEdit />
+                      </button>
+                    )}
+                    {loggedInUser.role === 'admin' && (
+                      <button
+                        className="text-red-500"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        <FiTrash2 />
+                      </button>
+                    )}
+                  </td>
+                </>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
